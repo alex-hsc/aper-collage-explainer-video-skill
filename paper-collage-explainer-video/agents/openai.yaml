@@ -1,0 +1,4 @@
+interface:
+  display_name: "纸拼贴科普动画"
+  short_description: "从分镜、动画到固定 Xiaoyi 童声旁白的完整科普视频工作流"
+  default_prompt: "使用 $paper-collage-explainer-video 制作一条采用固定 Xiaoyi 童声旁白的横屏纸拼贴科普动画。"
