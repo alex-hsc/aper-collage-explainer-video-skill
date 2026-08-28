@@ -32,6 +32,13 @@ def main():
         "height": height,
         "fps": 24,
         "status": "planning",
+        "visual_quality": {
+            "mode": "high-detail",
+            "min_concrete_assets_per_shot": 5,
+            "max_recommended_assets_per_shot": 12,
+            "require_asset_manifest": True,
+            "require_contact_sheet": True
+        },
         "tools": {
             "motion": {
                 "provider": "Agnes AI",
