@@ -1,19 +1,19 @@
 ---
 name: paper-collage-explainer-video
-description: Create or reproduce coherent paper-collage/Vox-style explainer videos end to end, from topic research, factual script, narration lines and visual metaphors through structured visual specs, consistent keyframes, image-to-video shots, authorized TTS, timed subtitles, editing, rendering and QA. Use when users ask for 纸拼贴动画、贴纸动画、Vox 风格科普视频、横屏或竖屏知识解说、首尾帧生视频、逐镜可返工的 AI 动画，or want to analyze a reference video's narrative/visual grammar and produce an original—not copied—version.
+description: Create or reproduce coherent, high-detail paper-collage/Vox-style explainer videos end to end, from research and narration through concrete asset-rich keyframes, motion, authorized TTS, punctuation-safe subtitles, editing and QA. Use when users ask for 纸拼贴动画、贴纸动画、Vox 风格科普视频、配图丰富或形象生动的科普动画、横屏或竖屏知识解说、首尾帧生视频、逐镜可返工的 AI 动画，or want to upgrade simplistic symbolic visuals into vivid, specific educational scenes.
 ---
 
 # Paper-collage explainer video
 
-Build a modular five-layer pipeline. Save every intermediate artifact and rerun only failed shots. Treat audio as the master clock in the final edit.
+Build a modular five-layer pipeline. Save every intermediate artifact and rerun only failed shots. Treat audio as the master clock in the final edit. Default to concrete, asset-rich scenes rather than sparse geometry.
 
 ## Start the project
 
 1. Determine topic, audience, language, target duration, aspect ratio, factual stakes, voice source and output directory from the request. Default to 60–90 seconds, 16:9, 1280×720, 24 fps and 4–6 seconds per shot.
 2. If facts may be current, disputed, medical, legal or financial, research with primary/authoritative sources and preserve citations in `research/sources.md`. Separate educational explanation from advice.
 3. Run `python3 scripts/init_project.py <project-dir> --title "..." --duration 90 --aspect 16:9` from this skill directory.
-4. Read [references/art-direction.md](references/art-direction.md) before writing visual specs. Read [references/schemas.md](references/schemas.md) before producing machine-readable manifests. Read [references/tool-adapters.md](references/tool-adapters.md) when selecting generation, TTS or composition tools. Read [references/agnes-ai-video.md](references/agnes-ai-video.md) before generating motion with Agnes AI.
-5. First complete one 5-second pilot shot. Expand only after it passes the same gates and QA used by the full project.
+4. Read [references/art-direction.md](references/art-direction.md) and [references/high-detail-visual-standard.md](references/high-detail-visual-standard.md) before writing visual specs. Read [references/schemas.md](references/schemas.md) before producing machine-readable manifests. Read [references/tool-adapters.md](references/tool-adapters.md) when selecting generation, TTS or composition tools. Read [references/agnes-ai-video.md](references/agnes-ai-video.md) before generating motion with Agnes AI.
+5. First complete one 5-second pilot shot at final asset density. Expand only after it passes the same gates and QA used by the full project.
 
 ## Execute the five layers
 
@@ -21,7 +21,7 @@ Build a modular five-layer pipeline. Save every intermediate artifact and rerun 
 
 1. Distill one central claim and a narrative arc: hook → intuitive example → mechanism → consequence → takeaway.
 2. Write conversational narration at a pace suitable for the target language. Split it into shots of roughly 4–6 seconds; keep one idea per shot.
-3. Translate every line into one visible action and one visual metaphor. Avoid literal keyword illustration, generic charts, decorative clutter and on-screen prose.
+3. Translate every line into one visible action and one visual metaphor inside a concrete place. Avoid literal keyword illustration, generic charts, decorative clutter and on-screen prose.
 4. Write `story/storyboard.json` using the schema reference. Include narration, target duration, metaphor, composition, assembly order, factual support and transition intent.
 5. Present a concise shot table and stop at **Gate 1: metaphor approval** when the user is actively collaborating. If the user explicitly requests autonomous completion, record the self-review decision in `qa/gate-1.md` and continue.
 
@@ -29,12 +29,14 @@ Gate 1 passes only when each shot remains understandable without subtitles, comm
 
 ### 2. Visual layer
 
-1. Establish one project-wide style bible in `visual/style-bible.json`: palette, background, halftone treatment, paper edges, outlines, shadows, recurring character design, aspect ratio and negative constraints.
-2. Write one `visual/specs/shot-NN.json` per shot. Specify 3–6 large paper groups, their position/depth, start state, end state, assembly order and prohibited elements.
-3. Generate a confirmed end frame first. Use the same style bible and recurring reference assets for every shot. Do not put captions, numbers, logos, UI or watermarks into generated frames unless essential and explicitly requested.
-4. Create the start frame by removing staged paper groups from the approved end frame while preserving the background and camera. Prefer an empty or nearly empty color field.
-5. Inspect metaphor clarity, anatomy/hands, accidental text, palette continuity, clean cut-paper edges and whether the scene can be decomposed into 3–6 groups.
-6. Stop at **Gate 2: keyframe approval** under interactive collaboration. Under autonomous execution, log the visual QA and continue only when all critical checks pass.
+1. Establish one project-wide style bible in `visual/style-bible.json`: palette, environment detail, halftone treatment, paper edges, outlines, shadows, recurring people/vehicles/props, aspect ratio and negative constraints.
+2. Write one `visual/specs/shot-NN.json` per shot. Specify 3–6 large animated paper groups and 5–12 concrete recognizable assets, their position/depth, start state, end state, assembly order and prohibited elements.
+3. Write `visual/asset-manifest.json`. For every shot list `primary_subjects`, `environment_assets`, `mechanism_assets`, `supporting_assets`, `concrete_asset_count`, and `unique_composition_key`.
+4. Generate a confirmed end frame first with ImageGen when available. Use the same style bible and recurring reference assets for every shot. Do not put captions, numbers, logos, UI or watermarks into generated frames unless essential and explicitly requested.
+5. Create the start frame by removing staged paper groups from the approved end frame while preserving the environment and camera. Do not erase the concrete setting into a generic empty field.
+6. Inspect metaphor clarity, asset specificity, anatomy/hands, vehicle/object integrity, accidental text, palette continuity, clean cut-paper edges and whether the scene can be decomposed into 3–6 animated groups.
+7. Build a contact sheet covering every shot. Reject repeated template composition, fewer than five meaningful concrete assets, generic icon-only scenes, or decorative assets unrelated to the narration.
+8. Stop at **Gate 2: keyframe approval** under interactive collaboration. Under autonomous execution, log the visual QA and continue only when all critical checks pass.
 
 Do not proceed to animation when the end frame is conceptually wrong. Regenerate the failed frame, not the entire project.
 
@@ -66,7 +68,7 @@ Do not proceed to animation when the end frame is conceptually wrong. Regenerate
 ## Validate and deliver
 
 1. Run `python3 scripts/validate_project.py <project-dir>`.
-2. Watch the complete rendered video from start to finish. Check A/V sync, subtitle timing/safe area, continuation-line leading punctuation, abrupt cuts, frozen frames, color/style drift, missing audio, duplicated lines, spelling, factual accuracy and final-frame integrity.
+2. Watch the complete rendered video from start to finish and inspect the all-shot contact sheet. Check A/V sync, subtitle timing/safe area, continuation-line leading punctuation, abrupt cuts, frozen frames, asset repetition, sparse scenes, color/style drift, missing audio, duplicated lines, spelling, factual accuracy and final-frame integrity.
 3. Save `qa/final.md` with pass/fail findings and any accepted deviations.
 4. Deliver the final MP4 plus a brief report listing duration, resolution/fps, shot count, tools/models used, factual sources, voice authorization basis, XiaoyiNeural parameters, known deviations and paths to editable manifests.
 5. Never claim completion when a required tool is missing or a render has not been watched. Produce a handoff manifest and name the exact blocked layer instead.
