@@ -30,6 +30,9 @@ def main():
         for key in ("title", "aspect_ratio", "width", "height", "fps"):
             if key not in manifest:
                 errors.append(f"project.json missing {key}")
+    visual_quality = (manifest or {}).get("visual_quality", {})
+    high_detail = visual_quality.get("mode") == "high-detail"
+    min_assets = int(visual_quality.get("min_concrete_assets_per_shot", 5))
 
     storyboard_path = root / "story/storyboard.json"
     storyboard = load_json(storyboard_path, errors) if storyboard_path.exists() else None
@@ -51,6 +54,36 @@ def main():
             if shot_id and not (root / f"visual/specs/{shot_id}.json").exists():
                 warnings.append(f"Missing visual spec for {shot_id}")
 
+    asset_manifest_path = root / "visual/asset-manifest.json"
+    if high_detail and shots:
+        if not asset_manifest_path.exists():
+            errors.append("High-detail project missing visual/asset-manifest.json")
+        else:
+            asset_manifest = load_json(asset_manifest_path, errors)
+            asset_shots = asset_manifest.get("shots", []) if isinstance(asset_manifest, dict) else []
+            by_id = {item.get("id"): item for item in asset_shots if isinstance(item, dict)}
+            composition_keys = []
+            for shot in shots:
+                shot_id = shot.get("id")
+                item = by_id.get(shot_id)
+                if not item:
+                    errors.append(f"Asset manifest missing {shot_id}")
+                    continue
+                required_lists = ("primary_subjects", "environment_assets", "mechanism_assets", "supporting_assets")
+                for key in required_lists:
+                    if not isinstance(item.get(key), list):
+                        errors.append(f"Asset manifest {shot_id} missing list {key}")
+                count = item.get("concrete_asset_count")
+                if not isinstance(count, int) or count < min_assets:
+                    errors.append(f"Asset manifest {shot_id} has fewer than {min_assets} concrete assets")
+                composition_key = item.get("unique_composition_key")
+                if not composition_key:
+                    errors.append(f"Asset manifest {shot_id} missing unique_composition_key")
+                composition_keys.append((shot_id, composition_key))
+            for previous, current in zip(composition_keys, composition_keys[1:]):
+                if previous[1] and previous[1] == current[1]:
+                    errors.append(f"Adjacent shots reuse composition key: {previous[0]} and {current[0]}")
+
     timing_path = root / "audio/timing.json"
     if timing_path.exists():
         timing = load_json(timing_path, errors)
@@ -66,6 +99,10 @@ def main():
     final_candidates = list((root / "renders").glob("*.mp4")) if (root / "renders").exists() else []
     if not final_candidates:
         warnings.append("No final MP4 render yet")
+    elif high_detail and visual_quality.get("require_contact_sheet", True):
+        contact_candidates = list((root / "qa").glob("*contact-sheet*"))
+        if not contact_candidates:
+            errors.append("High-detail final render missing all-shot contact sheet under qa/")
     if not (root / "qa/final.md").exists():
         warnings.append("Final watch-through QA not recorded")
 
