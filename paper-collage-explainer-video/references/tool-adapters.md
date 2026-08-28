@@ -20,7 +20,7 @@ The article used `pyang5166/gbro-collage-broll`. If it is installed, use it for 
 
 ## Image generation
 
-Prefer the available ImageGen skill/tool for keyframes. Generate an approved end frame before deriving a start frame. When image editing supports references, use the approved style/character images to preserve continuity.
+Prefer the available ImageGen skill/tool for high-detail keyframes. Generate one distinct prompt per shot; do not reuse one generic prompt with noun substitution. Specify the concrete setting, primary subject, mechanism, supporting assets, subtitle-safe area, paper materials and negative constraints. Generate an approved end frame before deriving a start frame. When image editing supports references, use the approved style/character images to preserve continuity. Persist every project-bound final keyframe inside the project rather than leaving it only in a provider cache.
 
 ## Image-to-video
 
