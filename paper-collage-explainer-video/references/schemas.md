@@ -5,6 +5,7 @@
 - Project manifest
 - Storyboard
 - Visual specification
+- Asset manifest
 - Timing
 - QA
 
@@ -48,6 +49,30 @@ Use zero-padded shot IDs: `shot-01`, `shot-02`, and so on. Store UTF-8 JSON with
 Each `visual/specs/shot-NN.json` contains `id`, `aspect_ratio`, `palette`, `background`, `camera`, `paper_groups`, `start_state`, `end_state`, `assembly_order`, `generation_prompt`, `motion_prompt`, `negative_constraints`, and `continuity_refs`.
 
 Each paper group contains `name`, `appearance`, `position`, `depth`, `entrance`, and `final_state`.
+
+In high-detail mode each visual spec also contains `concrete_assets` with 5–12 narration-relevant recognizable items and `unique_composition_key` describing what makes the shot spatially distinct.
+
+## Asset manifest
+
+`visual/asset-manifest.json` is required when `project.json.visual_quality.mode` is `high-detail`:
+
+```json
+{
+  "shots": [
+    {
+      "id": "shot-01",
+      "primary_subjects": ["child observer", "family car"],
+      "environment_assets": ["highway", "utility poles", "mountains"],
+      "mechanism_assets": ["heat haze", "curved light path"],
+      "supporting_assets": ["truck", "shrubs"],
+      "concrete_asset_count": 9,
+      "unique_composition_key": "low road perspective toward false puddle"
+    }
+  ]
+}
+```
+
+Count only visible, narration-relevant assets. Do not count texture, shadows, background color, repeated particles or decorative clutter as separate assets.
 
 ## Timing
 
